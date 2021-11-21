@@ -48,7 +48,7 @@ public class GsonTagRepositoryImpl implements TagRepository {
         List<Tag> currentTags = getAllTagsInternal();
         Long newMaxId = getIdNext(currentTags);
         t.setId(newMaxId);
-        t.setName(t.getName()+t.getId());
+        t.setName(t.getName());
         currentTags.add(t);
         writeToJsonFile(currentTags);
         return t;
