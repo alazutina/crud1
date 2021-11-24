@@ -1,1 +1,1 @@
-[{"id":1,"content":"News","tags":[{"id":1,"name":"Moscow"}],"status":"DELETED"},{"id":2,"content":"News","tags":[{"id":1,"name":"Moscow"}],"status":"ACTIVE"}]
+[{"id":1,"content":"News","tags":[{"id":1,"name":"Moscow"}],"status":"DELETED"},{"id":2,"content":"News","tags":[{"id":1,"name":"Moscow"}],"status":"ACTIVE"},{"id":3,"content":"article","tags":[{"id":2,"name":"Roma"}],"status":"ACTIVE"}]

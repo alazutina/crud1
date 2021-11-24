@@ -1,1 +1,1 @@
-[{"id":1,"name":"Anna","posts":[{"id":2,"content":"News","tags":[{"id":1,"name":"Moscow"}],"status":"ACTIVE"}]}]
+[{"id":1,"name":"Anna","posts":[{"id":2,"content":"News","tags":[{"id":1,"name":"Moscow"}],"status":"ACTIVE"}]},{"id":2,"name":"Ira","posts":[{"id":1,"content":"News","tags":[{"id":1,"name":"Moscow"}],"status":"DELETED"}]}]

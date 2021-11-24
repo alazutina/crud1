@@ -6,22 +6,19 @@ import com.anna.crud.repository.PostRepository;
 import com.anna.crud.repository.TagRepository;
 import com.anna.crud.repository.gson.GsonPostRepositoryImpl;
 import com.anna.crud.repository.gson.GsonTagRepositoryImpl;
+import com.anna.crud.controller.TagController;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class TagView {
-
-    TagRepository tr = new GsonTagRepositoryImpl();
-
-    final Scanner sc = new Scanner(System.in);
-    final  String ERROR_MESS="неверный ввод";
-    List<Tag> t = new ArrayList<>();
-
-    public List<Tag> startTags(){
+    private final TagController tagController = new TagController();
+   private final Scanner sc = new Scanner(System.in);
+   private final  String ERROR_MESS="неверный ввод";
 
 
+    public void startTags(){
 
 
         System.out.println("Список всех тагов: ");
@@ -64,7 +61,7 @@ public class TagView {
             }
             if (num == 5) {
 
-                tagById();
+               tagById();
 
 
             }
@@ -73,23 +70,9 @@ public class TagView {
                 end = true;
             }
 
-//            if (!end) {
-//                System.out.println(ERROR_MESS);
-//            }
-
         }
         while (!end) ;
-
-        return t;
-
-
     }
-
-
-
-
-
-
 
     private void  printMenu(){
         System.out.println("Меню для Tags:" +
@@ -97,23 +80,19 @@ public class TagView {
                 "\n2 - удалить Tag;" +
                 "\n3 - изменить Tag;" +
                 "\n4 - список всех Tags;" +
-                "\n5 - ввести id of Tag, которые добавить к посту"  +
+                "\n5 - ввести Tag by id;"  +
                 "\n6 - завершение работы с Tags");
 
     }
 
     private void printAllTags(){
-        for (Tag t :tr.getAll()) {
-            System.out.println(t);
-        }  //getAll
-
+          List<Tag> tags = tagController.getAll();
+                System.out.println(tags);
     }
 
     private void addNewTag(){
 
-        Tag t = new Tag();
         String name;
-
         System.out.print("Введите name of Tag: ");
 
         while (true) {
@@ -124,10 +103,8 @@ public class TagView {
                 System.out.println("что-то пошло не так с вводом.");
             }
         }
-        t.setName(name);
-
-        tr.save(t);
-    }
+              tagController.save(name);
+            }
 
     private void deleteTag(){
         System.out.print("Введите id of Tag, который удалить: ");
@@ -141,7 +118,7 @@ public class TagView {
                 System.out.println(ERROR_MESS);
             }
         }
-                tr.deleteById(i);
+               tagController.deleteById(i);
             }
 
             private void updateTag(){
@@ -169,49 +146,69 @@ public class TagView {
                         System.out.println(ERROR_MESS);
                     }
                 }
-
-                Tag updateTag = new Tag(i, s);  //update
-                tr.update(updateTag);
-
+               tagController.update(i,s);
             }
 
-            private void tagById(){
+            private void tagById() {
                 Long i;
                 boolean flag = true;
 
 
-                do {
+                //     do {
+                System.out.print("Введите id of Tag: ");
 
-                    System.out.print("Введите id of Tag: ");
-
-
-                    while (true) {
-                        try {
-                            i = sc.nextLong();
-                            break;
-                        } catch (Exception e) {
-                            System.out.println(ERROR_MESS);
-                        }
+                while (true) {
+                    try {
+                        i = sc.nextLong();
+                        break;
+                    } catch (Exception e) {
+                        System.out.println(ERROR_MESS);
                     }
+                }
 
-                    t.add(tr.getById(i));
-                    //System.out.println(tr.getById(i));
-                    System.out.print("Еще добавить(1 - да, 0 - нет)?: ");
-                    while (true) {
-                        try {
-                            i = sc.nextLong();
-                            break;
-                        } catch (Exception e) {
-                            System.out.println(ERROR_MESS);
+                System.out.println(tagController.getById(i));
+            }
+
+                public List<Tag> returnPostTags(){
+
+                    Long i;
+                    boolean flag = true;
+                    List<Tag> writerPosts = new ArrayList<>();
+
+                    System.out.print("All of Tags:");
+                    printAllTags();
+
+                    do {
+
+                        System.out.print("Введите id of Tags для Post: ");
+
+
+                        while (true) {
+                            try {
+                                i = sc.nextLong();
+                                break;
+                            } catch (Exception e) {
+                                System.out.println(ERROR_MESS);
+                            }
                         }
-                    }
-                    if (i==0) flag = false;
 
+                        writerPosts.add(tagController.getById(i));
 
-                } while (!flag==false);
-
+                        System.out.print("Еще добавить(1 - да, 0 - нет)?: ");
+                        while (true) {
+                            try {
+                                i = sc.nextLong();
+                                break;
+                            } catch (Exception e) {
+                                System.out.println(ERROR_MESS);
+                            }
+                        }
+                        if (i==0) flag = false;
+                    } while (!flag==false);
+                    return writerPosts;
+                }
 
             }
 
 
-}
+

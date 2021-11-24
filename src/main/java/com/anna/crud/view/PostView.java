@@ -1,4 +1,6 @@
 package com.anna.crud.view;
+import com.anna.crud.controller.PostController;
+import com.anna.crud.controller.TagController;
 import com.anna.crud.model.PostStatus;
 import com.anna.crud.model.Tag;
 import com.anna.crud.model.Writer;
@@ -18,115 +20,80 @@ public class PostView {
     String name; // current writer
     List<Post> posts = new ArrayList<>();
 
-    public PostView(String name){
+    public PostView(String name) {
         this.name = name;
-
     }
 
-    public PostView(){
-
+    public PostView() {
     }
 
-    PostRepository pr = new GsonPostRepositoryImpl();
-    final  Scanner sc = new Scanner(System.in);
-    final  String ERROR_MESS="неверный ввод";
+    final private PostController postController = new PostController();
+    final private  Scanner sc = new Scanner(System.in);
+    final private  String ERROR_MESS = "неверный ввод";
 
-    public List<Post> startPosts(){
-
-
+    public void startPosts() {
         System.out.println("Список всех постов: ");
-
         printAllPosts();
+        int num;
+        boolean end = false;
 
-
-            int num;
-            boolean end = false;
-
-            do {
-                printMenu();
-
-                while (true) {
-                    try {
-                        num = sc.nextInt();
-                        break;
-                    } catch (Exception e) {
-                        System.out.println(ERROR_MESS);
-                    }
+        do {
+            printMenu();
+            while (true) {
+                try {
+                    num = sc.nextInt();
+                    break;
+                } catch (Exception e) {
+                    System.out.println(ERROR_MESS);
                 }
-
-                if (num == 1) {
-
-                    addNewPost();
-
-                }
-                if (num == 2) {
-
-                    deletePost();
-
-
-                }
-                if (num == 3) {
-
-                    updatePost();
-                }
-
-                    if (num == 4) {
-                        printAllPosts();
-
-
-                    }
-                    if (num == 5) {
-                        postGetById();
-
-
-                    }
-                    if (num == 6) {
-
-                        end = true;
-                    }
-
-//                    if (!end) {
-//                        System.out.println(ERROR_MESS);
-//                    }
-
-                }
-                while (!end) ;
-
-return posts;
             }
 
+            if (num == 1) {
+                addNewPost();
+            }
+            if (num == 2) {
+                deletePost();
+            }
+            if (num == 3) {
+                updatePost();
+            }
+            if (num == 4) {
+                printAllPosts();
+            }
+            if (num == 5) {
+                postGetById();
+            }
+            if (num == 6) {
+                end = true;
+            }
+        }
+        while (!end);
+    }
 
 
-
-
-
-
-    private void  printMenu(){
+    private void printMenu() {
         System.out.println("Меню постов:" +
-                "\n1 - добавить пост для автора " + name+ ";"+
+                "\n1 - добавить пост;" +
                 "\n2 - удалить пост из списка;" +
                 "\n3 - изменить пост из списка;" +
                 "\n4 - список всех постов;" +
-                "\n5 - ввести id of Post, которые добавить к автору;"  +
+                "\n5 - введите id of Post;" +
                 "\n6 - завершение работы с постами");
-
     }
 
-    private void printAllPosts(){
-        for (Post p :pr.getAll()) {
+    private void printAllPosts() {
+        for (Post p : postController.getAll()) {
             System.out.println(p);
         }  //getAll
 
     }
 
-    private void addNewPost(){
+    private void addNewPost() {
 
-    //    TagRepository tr = new GsonTagRepositoryImpl();
         Post p = new Post();
         String content;
         List<Tag> tags;
-        PostStatus status=PostStatus.ACTIVE;
-
+        PostStatus status = PostStatus.ACTIVE;
         System.out.print("Введите content: ");
 
         while (true) {
@@ -144,8 +111,8 @@ return posts;
         while (true) {
             try {
                 str = sc.next();
-                if(str.equals("ACTIVE")) status = PostStatus.ACTIVE;
-                if(str.equals("DELETED")) status = PostStatus.DELETED;
+                if (str.equals("ACTIVE")) status = PostStatus.ACTIVE;
+                if (str.equals("DELETED")) status = PostStatus.DELETED;
                 break;
             } catch (Exception e) {
                 System.out.println("что-то пошло не так с вводом.");
@@ -156,18 +123,15 @@ return posts;
         p.setContent(content);
 
         TagView t = new TagView();
-        tags = t.startTags();
+        tags = t.returnPostTags();
 
-        p.setTags(tags);
-
-
-        pr.save(p);
+        postController.save(content,tags,status);
     }
 
-    private void deletePost(){
+    private void deletePost() {
 
         System.out.print("Введите id of Post, который удалить: ");
-        Long i ;
+        Long i;
 
         while (true) {
             try {
@@ -177,13 +141,12 @@ return posts;
                 System.out.println(ERROR_MESS);
             }
         }
-        pr.deleteById(i);
+        postController.deleteById(i);
     }
 
-    private void updatePost(){
+    private void updatePost() {
         System.out.print("Введите id изменяемого Post: ");
-        Long i ;
-
+        Long i;
         while (true) {
             try {
                 i = sc.nextLong();
@@ -192,15 +155,10 @@ return posts;
                 System.out.println(ERROR_MESS);
             }
         }
-
-
         List<Tag> tags;
-        PostStatus status=PostStatus.ACTIVE;
-
-
+        PostStatus status = PostStatus.ACTIVE;
         System.out.print("Введите content of Post: ");
         String c;
-
         while (true) {
             try {
                 c = sc.next();
@@ -209,45 +167,27 @@ return posts;
                 System.out.println(ERROR_MESS);
             }
         }
-
         String str;
-
         System.out.print("Введите status of Post(ACTIVE, DELETED): ");
-
         while (true) {
             try {
                 str = sc.next();
-                if(str.equals("ACTIVE")) status = PostStatus.ACTIVE;
-                if(str.equals("DELETED")) status = PostStatus.DELETED;
+                if (str.equals("ACTIVE")) status = PostStatus.ACTIVE;
+                if (str.equals("DELETED")) status = PostStatus.DELETED;
                 break;
             } catch (Exception e) {
                 System.out.println("что-то пошло не так с вводом.");
             }
         }
-
         TagView t = new TagView();
-        tags = t.startTags();
-
-        Post updatePost = new Post();
-        updatePost.setTags(tags);
-        updatePost.setPostStatus(status);
-        updatePost.setContent(c);
-        updatePost.setId(i);
-
-        pr.update(updatePost);
-
+        tags = t.returnPostTags();
+        postController.update(i,c,tags,status);
     }
 
-    private void postGetById(){
+    private void postGetById() {
         Long i;
         boolean flag = true;
-
-
-        do {
-
             System.out.print("Введите id of Post: ");
-
-
             while (true) {
                 try {
                     i = sc.nextLong();
@@ -256,10 +196,28 @@ return posts;
                     System.out.println(ERROR_MESS);
                 }
             }
+            System.out.println(postController.getById(i));
+        }
 
-            posts.add(pr.getById(i));
-            //System.out.println(tr.getById(i));
-            System.out.print("Еще добавить(1 - да, 0 - нет)?: ");
+    public List<Post> returnWriterPosts(){
+        Long i;
+        boolean flag = true;
+        List<Post> writerPosts = new ArrayList<>();
+        System.out.print("All of Posts:");
+        printAllPosts();
+        do {
+        System.out.print("Введите id of Post для Writer: ");
+        while (true) {
+            try {
+                i = sc.nextLong();
+                break;
+            } catch (Exception e) {
+                System.out.println(ERROR_MESS);
+            }
+        }
+
+        writerPosts.add(postController.getById(i));
+        System.out.print("Еще добавить(1 - да, 0 - нет)?: ");
             while (true) {
                 try {
                     i = sc.nextLong();
@@ -269,13 +227,8 @@ return posts;
                 }
             }
             if (i==0) flag = false;
-
-
         } while (!flag==false);
-
-
+        return writerPosts;
+    }
     }
 
-
-
-}

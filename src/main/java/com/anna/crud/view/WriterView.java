@@ -1,5 +1,7 @@
 package com.anna.crud.view;
 
+import com.anna.crud.controller.TagController;
+import com.anna.crud.controller.WriterController;
 import com.anna.crud.model.Post;
 import com.anna.crud.model.PostStatus;
 import com.anna.crud.model.Tag;
@@ -14,9 +16,10 @@ import java.util.Scanner;
 
 public class WriterView {
 
-    WriterRepository wr = new GsonWriterRepositoryImpl();
-    final  Scanner sc = new Scanner(System.in);
-    final  String ERROR_MESS="неверный ввод";
+
+    private final WriterController writerController = new WriterController();
+    private final  Scanner sc = new Scanner(System.in);
+    private final  String ERROR_MESS="неверный ввод";
 
     public  void startViewWriters() {
 
@@ -51,31 +54,20 @@ public class WriterView {
                 }
                 if (num == 5) {
                     getWriterById();
-
-
                 }
                 if (num == 6) {
-
                     end = true;
                 }
-
-//                if (!end) {
-//                    System.out.println(ERROR_MESS);
-//                }
-
             }
             while (!end) ;
-
-
         }
 
 
 
     private void printAllWriters(){
-        for (Writer w :wr.getAll()) {
+        for (Writer w :writerController.getAll()) {
             System.out.println(w);
-        }  //getAll
-
+        }
     }
 
     private void  printMenu(){
@@ -86,11 +78,9 @@ public class WriterView {
                 "\n4 - список всех авторов;" +
                 "\n5 - информация об авторе по id;"  +
                 "\n6 - завершение работы");
-
     }
 
-    private void addNewWriter(){
-      //  Long id;
+    private void addNewWriter() {
         String name;
         List<Post> posts;
 
@@ -106,14 +96,8 @@ public class WriterView {
         }
 
         PostView pv = new PostView(name);
-
-        Writer writer = new Writer();
-        writer.setName(name);
-        writer.setPosts(pv.startPosts());
-
-        wr.save(writer);
-
-            }
+        writerController.save(name, pv.returnWriterPosts());
+    }
 
             private void deleteWriter(){
 
@@ -128,7 +112,7 @@ public class WriterView {
                         System.out.println(ERROR_MESS);
                     }
                 }
-                wr.deleteById(i);
+                writerController.deleteById(i);
                     }
 
 
@@ -144,7 +128,6 @@ public class WriterView {
                                 System.out.println(ERROR_MESS);
                             }
                         }
-                        //  Long id;
                         String name;
                         List<Post> posts;
 
@@ -161,15 +144,7 @@ public class WriterView {
 
                         PostView pv = new PostView(name);
 
-                        Writer writer = new Writer();
-                        writer.setName(name);
-                        writer.setPosts(pv.startPosts());
-                        writer.setId(i);
-
-                        wr.update(writer);
-
-
-
+                        writerController.update(i,name,pv.returnWriterPosts());
 
                     }
 
@@ -187,7 +162,7 @@ public class WriterView {
             }
         }
 
-        System.out.println(wr.getById(i));
+        System.out.println(writerController.getById(i));
 
     }
 
