@@ -2,8 +2,11 @@ package com.anna.crud.model;
 
 
 public class Tag {
-    private Long id;
-    private String name;
+
+//      Tag(id, name)
+
+    private  Long id;
+    private  String name;
 
     public Tag() {
     }

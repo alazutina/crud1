@@ -1,16 +1,19 @@
 package com.anna.crud.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Post {
 
+
+ //   Post(id, content, List<Tag> tags, PostStatus status)
+
     private Long id;
     private String content;
-    private List<Tag> tags;
+    List<Tag> tags = new ArrayList<>();
     private PostStatus status;
 
-
-    public  Post() {
+    public Post() {
     }
 
     public Post(Long id, String content, List<Tag> tags, PostStatus status) {
@@ -20,46 +23,37 @@ public class Post {
         this.status = status;
     }
 
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-
-    public void setTags(List<Tag> tags) {
-        this.tags = tags;
-    }
-
-
-    public void setPostStatus(PostStatus status) {
-        this.status=status;
-    }
-
-
     public Long getId() {
         return id;
     }
-
 
     public String getContent() {
         return content;
     }
 
-
-    public List<Tag>  getTags() {
+    public List<Tag> getTags() {
         return tags;
     }
 
-
-    public PostStatus getPostStatus() {
+    public PostStatus getStatus() {
         return status;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
+    }
+
+    public void setStatus(PostStatus status) {
+        this.status = status;
+    }
 
     @Override
     public String toString() {
@@ -70,6 +64,8 @@ public class Post {
                 ", status=" + status +
                 '}';
     }
-
-
 }
+
+
+
+

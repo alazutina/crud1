@@ -1,22 +1,43 @@
 package com.anna.crud;
-
-        import com.anna.crud.model.*;
-        import com.anna.crud.model.Post;
-        import com.anna.crud.repository.TagRepository;
-        import com.anna.crud.repository.PostRepository;
-        import com.anna.crud.repository.WriterRepository;
-        import com.anna.crud.repository.gson.GsonPostRepositoryImpl;
-        import com.anna.crud.repository.gson.GsonTagRepositoryImpl;
-        import com.anna.crud.repository.gson.GsonWriterRepositoryImpl;
-        import com.anna.crud.view.WriterView;
-        import com.anna.crud.view.MainView;
+import com.anna.crud.controller.TagController;
+//import com.anna.crud.controller.WriterController;
+import com.anna.crud.controller.PostController;
+import com.anna.crud.model.Post;
+import com.anna.crud.model.Tag;
+import com.anna.crud.model.PostStatus;
+import com.anna.crud.model.Writer;
+//import com.anna.crud.view.MainView;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class AppRunner {
 
-            public static void main(String[] args) {
-            MainView mainView = new MainView();
-            mainView.start();
-        }
+            public static void main(String[] args) throws ClassNotFoundException, SQLException {
 
+                final TagController tagController = new TagController();
+                tagController.save("Moscow");
+                tagController.save("Sochi");
+                System.out.println(                tagController.getAll());
+                tagController.deleteById(1l);
+                System.out.println(tagController.getById(2l));
+
+
+                final PostController postController = new PostController();
+                List<Tag> tags = new ArrayList<>();
+                tags.add(tagController.getById(2l));
+                //tags.add(new Tag(0l,"Article"));
+                postController.save("News", tags,PostStatus.ACTIVE);
+                System.out.println(postController.getAll());
+                postController.deleteById(3l                );
+                System.out.println(postController.getAll());
+                System.out.println(postController.getById(4l));
+
+//                final WriterController writerController = new WriterController();
+
+}
 }
