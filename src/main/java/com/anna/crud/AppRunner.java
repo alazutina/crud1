@@ -1,6 +1,6 @@
 package com.anna.crud;
 import com.anna.crud.controller.TagController;
-//import com.anna.crud.controller.WriterController;
+import com.anna.crud.controller.WriterController;
 import com.anna.crud.controller.PostController;
 import com.anna.crud.model.Post;
 import com.anna.crud.model.Tag;
@@ -37,7 +37,24 @@ public class AppRunner {
                 System.out.println(postController.getAll());
                 System.out.println(postController.getById(4l));
 
-//                final WriterController writerController = new WriterController();
+                final WriterController writerController = new WriterController();
 
-}
+                List<Post> list = new ArrayList<>();
+                list.add(postController.getById(11l));
+                list.add(postController.getById(12l));
+                System.out.println(list);
+
+                writerController.save("Alina", list);
+             System.out.println(writerController.getAll());
+                writerController.deleteById(1l                );
+                System.out.println(writerController.getAll());
+                System.out.println(writerController.getById(5l));
+                Writer w = writerController.getById(5l);
+                writerController.update(w.getId(),"Marina",list);
+                System.out.println(writerController.getById(5l));
+
+
+
+
+            }
 }

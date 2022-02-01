@@ -9,13 +9,11 @@ import java.sql.*;
 import static java.lang.Class.*;
 
 public class DataBasePostRepositoryImpl implements PostRepository {
-
     /**
      * JDBC Driver and database url
      */
     static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
     static final String DATABASE_URL = "jdbc:mysql://localhost/test";
-
     /**
      * User and Password
      */
@@ -51,8 +49,19 @@ public class DataBasePostRepositoryImpl implements PostRepository {
                 "' Where ID = "+post.getId()+";";
         PreparedStatement stmt = connection.prepareStatement(sql);
         stmt.executeUpdate();
-        List<Tag> tagsInDataBase = new ArrayList<>();
-        sql="SELECT ID,NAME FROM tag LEFT JOIN  tag_post ON tag.ID = tag_post.ID_TAG WHERE tag_post.ID_POST = "+post.getId()+";";
+
+        List<Tag> tags = post.getTags();
+        for(Tag t: tags) {
+            String sql1 = "INSERT INTO tag_post (ID_TAG, ID_POST)  VALUES(" + t.getId() + "," + post.getId() + ") " +
+                    "ON DUPLICATE KEY UPDATE ID_TAG=ID_TAG, ID_POST=ID_POST ;";
+            PreparedStatement stmt1 = connection.prepareStatement(sql1);
+            stmt1.executeUpdate();
+            stmt1.close();
+        }
+
+                List<Tag> tagsInDataBase = new ArrayList<>();
+
+           sql="SELECT ID,NAME FROM tag LEFT JOIN  tag_post ON tag.ID = tag_post.ID_TAG WHERE tag_post.ID_POST = "+post.getId()+";";
         Statement statement1 = connection.createStatement();
         ResultSet resultSet1 = statement1.executeQuery(sql);
         while (resultSet1.next()) {
@@ -62,20 +71,6 @@ public class DataBasePostRepositoryImpl implements PostRepository {
         }
         resultSet1.close();
         statement1.close();
-        for (Tag t: post.getTags()){
-            int flag = 0; // пока такого tag нет
-            for(Tag tDB: tagsInDataBase){
-                if (t.equals(tDB)) flag=1;
-            }
-            if(flag==0){
-                String sql1 =  "INSERT INTO tag_post (ID_TAG, ID_POST)  VALUES("+t.getId()+","+post.getId()+");";
-                PreparedStatement stmt1 = connection.prepareStatement(sql1);
-                stmt.executeUpdate();
-                stmt1.close();
-            }
-        }
-
-
 
         for (Tag tDB: tagsInDataBase ){
             int flag = 0; // пост есть в BD но в новом списке его нет
@@ -85,12 +80,53 @@ public class DataBasePostRepositoryImpl implements PostRepository {
             if(flag==0){
                 String sql1 = "delete  FROM tag_post WHERE id_TAG = "+tDB.getId()+");";
                 PreparedStatement stmt1 = connection.prepareStatement(sql1);
-                stmt.executeUpdate();
+                stmt1.executeUpdate();
                 stmt1.close();
 
             }
         }
+
+
+     //   sql="SELECT ID,NAME FROM tag LEFT JOIN  tag_post ON tag.ID = tag_post.ID_TAG WHERE tag_post.ID_POST = "+post.getId()+";";
+//        Statement statement1 = connection.createStatement();
+//        ResultSet resultSet1 = statement1.executeQuery(sql);
+//        while (resultSet1.next()) {
+//            long id = resultSet1.getLong(1);
+//            String name = resultSet1.getString(2);
+//            tagsInDataBase.add(new Tag(id,name));
+//        }
+//        resultSet1.close();
+//        statement1.close();
+//        for (Tag t: post.getTags()){
+//            int flag = 0; // пока такого tag нет
+//            for(Tag tDB: tagsInDataBase){
+//                if (t.equals(tDB)) flag=1;
+//            }
+//            if(flag==0){
+//                String sql1 =  "INSERT INTO tag_post (ID_TAG, ID_POST)  VALUES("+t.getId()+","+post.getId()+");";
+//                PreparedStatement stmt1 = connection.prepareStatement(sql1);
+//                stmt.executeUpdate();
+//                stmt1.close();
+//            }
+//        }
+//
+//
+//
+//        for (Tag tDB: tagsInDataBase ){
+//            int flag = 0; // пост есть в BD но в новом списке его нет
+//            for(Tag t: post.getTags()){
+//                if (t.equals(tDB)) flag=1;
+//            }
+//            if(flag==0){
+//                String sql1 = "delete  FROM tag_post WHERE id_TAG = "+tDB.getId()+");";
+//                PreparedStatement stmt1 = connection.prepareStatement(sql1);
+//                stmt.executeUpdate();
+//                stmt1.close();
+//
+//            }
+//        }
         stmt.close();
+
         connection.close();
         return post;
     }
@@ -125,18 +161,22 @@ public class DataBasePostRepositoryImpl implements PostRepository {
            PostStatus st;
             if(status.equals("ACTIVE")){ st = PostStatus.ACTIVE;} else {st = PostStatus.DELETED;}
             p.setStatus(st);
+
            String sql1="SELECT ID,NAME FROM tag LEFT JOIN  tag_post ON tag.ID = tag_post.ID_TAG WHERE tag_post.ID_POST = "+id+";";
            ResultSet resultSet1 = statement1.executeQuery(sql1);
+
             List<Tag> postTags = new ArrayList<>();
             while (resultSet1.next()) {
                 long idT = resultSet1.getLong(1);
                 String nameT = resultSet1.getString(2);
                 postTags.add(new Tag(idT,nameT));
             }
+
             p.setTags(postTags);
             resultSet1.close();
             listPost.add(p);
         }
+
         resultSet.close();
         statement.close();
         statement1.close();
@@ -164,6 +204,7 @@ resultSet1.first();
 //            i = resultSet1.getInt("max_id");}
 
         List<Tag> Tags = p.getTags();
+
         for( Tag t: Tags ){
             sql = "INSERT INTO tag (ID, NAME)  VALUES("+t.getId()+",'"+t.getName()+"')" +
                     " ON DUPLICATE KEY UPDATE ID=ID, NAME=NAME;";//System.out.println(sql);

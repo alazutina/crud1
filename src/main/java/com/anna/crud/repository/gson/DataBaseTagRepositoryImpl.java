@@ -45,7 +45,8 @@ public class DataBaseTagRepositoryImpl implements TagRepository {
     }
 
     public Tag save(Tag tag) throws SQLException, ClassNotFoundException {
-         tag.setId(writeToDataBase(tag));
+        // tag.setId(writeToDataBase(tag));
+        writeToDataBase(tag);
          return tag;
     }
 
