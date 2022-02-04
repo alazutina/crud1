@@ -21,14 +21,14 @@ public class DataBasePostRepositoryImpl implements PostRepository {
     static final String PASSWORD = "123456";
 
     @Override
-    public void deleteById(Long id) throws SQLException, ClassNotFoundException{
+    public void deleteById(Long id) throws SQLException, ClassNotFoundException {
         Connection connection = null;
         Class.forName("com.mysql.jdbc.Driver");
         connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
         Statement statement = connection.createStatement();
-        String sql =  "DELETE FROM tag_post WHERE ID_post = "+id+";";
+        String sql = "DELETE FROM tag_post WHERE ID_post = " + id + ";";
         statement.executeUpdate(sql);
-        sql =  "DELETE FROM post WHERE id = "+id+";";
+        sql = "DELETE FROM post WHERE id = " + id + ";";
         statement.executeUpdate(sql);
         statement.close();
         connection.close();
@@ -37,7 +37,7 @@ public class DataBasePostRepositoryImpl implements PostRepository {
     @Override
     public Post save(Post p) throws SQLException, ClassNotFoundException {
         writeToDataBase(p);
-       return p;
+        return p;
     }
 
     @Override
@@ -45,40 +45,60 @@ public class DataBasePostRepositoryImpl implements PostRepository {
         Connection connection = null;
         Class.forName("com.mysql.jdbc.Driver");
         connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-        String sql =  "Update post content = '"+post.getContent()+"', status = '"+post.getStatus()+
-                "' Where ID = "+post.getId()+";";
+        String sql = "Update post set content = '" + post.getContent() + "', status = '" + post.getStatus() +
+                "' Where ID = " + post.getId() + ";";
         PreparedStatement stmt = connection.prepareStatement(sql);
         stmt.executeUpdate();
 
         List<Tag> tags = post.getTags();
-        for(Tag t: tags) {
-            String sql1 = "INSERT INTO tag_post (ID_TAG, ID_POST)  VALUES(" + t.getId() + "," + post.getId() + ") " +
-                    "ON DUPLICATE KEY UPDATE ID_TAG=ID_TAG, ID_POST=ID_POST ;";
-            PreparedStatement stmt1 = connection.prepareStatement(sql1);
-            stmt1.executeUpdate();
-            stmt1.close();
-        }
+  //      System.out.println(tags);
+//        for (Tag t : tags) {
+//            String sql1 = "INSERT INTO tag_post (ID_TAG, ID_POST)  VALUES(" + t.getId() + "," + post.getId() + ") " +
+//                    "ON DUPLICATE KEY UPDATE ID_TAG=ID_TAG, ID_POST=ID_POST ;";
+//            System.out.println(sql1);
+//            PreparedStatement stmt1 = connection.prepareStatement(sql1);
+//            stmt1.executeUpdate();
+//            stmt1.close();
+//        }
 
-                List<Tag> tagsInDataBase = new ArrayList<>();
+        List<Tag> tagsInDataBase = new ArrayList<>();
 
-           sql="SELECT ID,NAME FROM tag LEFT JOIN  tag_post ON tag.ID = tag_post.ID_TAG WHERE tag_post.ID_POST = "+post.getId()+";";
+        sql = "SELECT ID,NAME FROM tag LEFT JOIN  tag_post ON tag.ID = tag_post.ID_TAG WHERE tag_post.ID_POST = " + post.getId() + ";";
+        System.out.println(sql);
         Statement statement1 = connection.createStatement();
         ResultSet resultSet1 = statement1.executeQuery(sql);
         while (resultSet1.next()) {
             long id = resultSet1.getLong(1);
             String name = resultSet1.getString(2);
-            tagsInDataBase.add(new Tag(id,name));
+            tagsInDataBase.add(new Tag(id, name));
         }
         resultSet1.close();
         statement1.close();
 
-        for (Tag tDB: tagsInDataBase ){
+        for (Tag tDB : tagsInDataBase) {
             int flag = 0; // пост есть в BD но в новом списке его нет
-            for(Tag t: post.getTags()){
-                if (t.equals(tDB)) flag=1;
+            for (Tag t : post.getTags()) {
+                if (t.equals(tDB)) flag = 1;
             }
-            if(flag==0){
-                String sql1 = "delete  FROM tag_post WHERE id_TAG = "+tDB.getId()+");";
+            if (flag == 0) {
+
+             String sql1 = "delete  FROM tag_post WHERE id_TAG = " + tDB.getId() + ";";
+           //  System.out.println(sql1);
+                PreparedStatement stmt1 = connection.prepareStatement(sql1);
+                stmt1.executeUpdate();
+                stmt1.close();
+
+            }
+        }
+
+        for (Tag t : post.getTags()) { // таг в обновленном посте
+            int flag = 0; //
+            for (Tag tDB : tagsInDataBase) {
+                if (t.equals(tDB)) flag = 1;
+            }
+            if (flag == 0) {
+                //     String sql1 = "INSERT INTO tag_post (ID_TAG, ID_POST)  VALUES(" + t.getId() + "," + post.getId() + ") " +
+                String sql1 = "INSERT INTO tag_post (ID_TAG, ID_POST)  VALUES(" + t.getId() + "," + post.getId() + "); ";// +
                 PreparedStatement stmt1 = connection.prepareStatement(sql1);
                 stmt1.executeUpdate();
                 stmt1.close();
@@ -87,7 +107,7 @@ public class DataBasePostRepositoryImpl implements PostRepository {
         }
 
 
-     //   sql="SELECT ID,NAME FROM tag LEFT JOIN  tag_post ON tag.ID = tag_post.ID_TAG WHERE tag_post.ID_POST = "+post.getId()+";";
+        //   sql="SELECT ID,NAME FROM tag LEFT JOIN  tag_post ON tag.ID = tag_post.ID_TAG WHERE tag_post.ID_POST = "+post.getId()+";";
 //        Statement statement1 = connection.createStatement();
 //        ResultSet resultSet1 = statement1.executeQuery(sql);
 //        while (resultSet1.next()) {
@@ -132,15 +152,15 @@ public class DataBasePostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public List<Post> getAll() throws SQLException, ClassNotFoundException{
+    public List<Post> getAll() throws SQLException, ClassNotFoundException {
         return getAllPostsInternal();
     }
 
-    public Post getById(Long id)throws SQLException, ClassNotFoundException {
-        return getAll().stream().filter(t->t.getId().equals(id)).findFirst().orElse(null);
+    public Post getById(Long id) throws SQLException, ClassNotFoundException {
+        return getAll().stream().filter(t -> t.getId().equals(id)).findFirst().orElse(null);
     }
 
-    private List<Post> getAllPostsInternal() throws SQLException, ClassNotFoundException{
+    private List<Post> getAllPostsInternal() throws SQLException, ClassNotFoundException {
         List<Post> listPost = new ArrayList<>();
 
         Connection connection = null;
@@ -158,18 +178,22 @@ public class DataBasePostRepositoryImpl implements PostRepository {
             String content = resultSet.getString(2);
             p.setContent(content);
             String status = resultSet.getString(3);
-           PostStatus st;
-            if(status.equals("ACTIVE")){ st = PostStatus.ACTIVE;} else {st = PostStatus.DELETED;}
+            PostStatus st;
+            if (status.equals("ACTIVE")) {
+                st = PostStatus.ACTIVE;
+            } else {
+                st = PostStatus.DELETED;
+            }
             p.setStatus(st);
 
-           String sql1="SELECT ID,NAME FROM tag LEFT JOIN  tag_post ON tag.ID = tag_post.ID_TAG WHERE tag_post.ID_POST = "+id+";";
-           ResultSet resultSet1 = statement1.executeQuery(sql1);
+            String sql1 = "SELECT ID,NAME FROM tag LEFT JOIN  tag_post ON tag.ID = tag_post.ID_TAG WHERE tag_post.ID_POST = " + id + ";";
+            ResultSet resultSet1 = statement1.executeQuery(sql1);
 
             List<Tag> postTags = new ArrayList<>();
             while (resultSet1.next()) {
                 long idT = resultSet1.getLong(1);
                 String nameT = resultSet1.getString(2);
-                postTags.add(new Tag(idT,nameT));
+                postTags.add(new Tag(idT, nameT));
             }
 
             p.setTags(postTags);
@@ -188,16 +212,16 @@ public class DataBasePostRepositoryImpl implements PostRepository {
         Connection connection = null;
         Class.forName("com.mysql.jdbc.Driver");
         connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-        String sql = "INSERT INTO post (ID,content, status) VALUES (0, '"+p.getContent()+"', '"+p.getStatus()+"" +
+        String sql = "INSERT INTO post (ID,content, status) VALUES (0, '" + p.getContent() + "', '" + p.getStatus() + "" +
                 "') ON DUPLICATE KEY UPDATE ID=ID, CONTENT=CONTENT, STATUS=STATUS;";
         PreparedStatement stmt = connection.prepareStatement(sql);
         stmt.executeUpdate();
-        sql="select max(id) max_id from post;";
+        sql = "select max(id) max_id from post;";
         PreparedStatement stmt1 = connection.prepareStatement(sql);
         ResultSet resultSet1 = stmt1.executeQuery(sql);
 
-resultSet1.first();
-       long i  =resultSet1.getLong("max_id");
+        resultSet1.first();
+        long i = resultSet1.getLong("max_id");
 
 
 //        if(resultSet1.next()) {
@@ -205,24 +229,24 @@ resultSet1.first();
 
         List<Tag> Tags = p.getTags();
 
-        for( Tag t: Tags ){
-            sql = "INSERT INTO tag (ID, NAME)  VALUES("+t.getId()+",'"+t.getName()+"')" +
-                    " ON DUPLICATE KEY UPDATE ID=ID, NAME=NAME;";//System.out.println(sql);
-            stmt = connection.prepareStatement(sql);
-            stmt.executeUpdate();
+        for (Tag t : Tags) {
+//            sql = "INSERT INTO tag (ID, NAME)  VALUES(" + t.getId() + ",'" + t.getName() + "')" +
+//                    " ON DUPLICATE KEY UPDATE ID=ID, NAME=NAME;";//System.out.println(sql);
+//            stmt = connection.prepareStatement(sql);
+//            stmt.executeUpdate();
 
 
-            sql="select max(id) max_id from tag;";
-            stmt1 = connection.prepareStatement(sql);
-            resultSet1 = stmt1.executeQuery(sql);
+//            sql = "select max(id) max_id from tag;";
+//            stmt1 = connection.prepareStatement(sql);
+//            resultSet1 = stmt1.executeQuery(sql);
 
-            resultSet1.first();
-            long j  =resultSet1.getLong("max_id");
+//            resultSet1.first();2
+//            long j = resultSet1.getLong("max_id");
 
-            sql = "INSERT INTO tag_post (ID_TAG, ID_POST)  VALUES("+j+","+i+")" +
+            sql = "INSERT INTO tag_post (ID_TAG, ID_POST)  VALUES(" + t.getId() + "," + i+ ")" +
                     " ON DUPLICATE KEY UPDATE ID_TAG=ID_TAG, ID_POST=ID_POST" +
                     ";";
-           // System.out.println(sql);
+            // System.out.println(sql);
             stmt = connection.prepareStatement(sql);
             stmt.executeUpdate();
         }
@@ -233,4 +257,23 @@ resultSet1.first();
         connection.close();
     }
 
+//    public List<Post>  getPostByWriterId(Long idW) throws SQLException, ClassNotFoundException {
+//        List<Post> posts = new ArrayList<>();
+//
+//        Connection connection = null;
+//        Class.forName("com.mysql.jdbc.Driver");
+//        connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
+//        String sql1 = "SELECT ID_post FROM writer_post where ID_WRITER = " + idW + ";";
+//        PreparedStatement statement1 = connection.prepareStatement(sql1);
+//        ResultSet resultSet1 = statement1.executeQuery(sql1);
+//
+//        if(resultSet1.next()){
+//            long i = resultSet1.getLong(1);
+//            Post p = getById(i);
+//            posts.add(p);
+//        }
+//        statement1.close();
+//        resultSet1.close();
+//        return posts;
+//    }
 }

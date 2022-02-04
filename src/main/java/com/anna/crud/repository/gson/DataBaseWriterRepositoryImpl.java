@@ -66,7 +66,7 @@ public class DataBaseWriterRepositoryImpl implements WriterRepository {
 //        connection.close();
         List<Post> posts = w.getPosts();
 
-        System.out.println(posts);
+     //   System.out.println(posts);
         for(Post p: posts) {
             String sql1 = "INSERT INTO writer_post (ID_writer, ID_POST)  VALUES(" + w.getId() + "," + p.getId() + ") " +
                     "ON DUPLICATE KEY UPDATE ID_WRITER=ID_WRITER, ID_POST=ID_POST ;";
@@ -75,7 +75,7 @@ public class DataBaseWriterRepositoryImpl implements WriterRepository {
             stmt1.close();
         }
 
-        List<Post> postsInDataBase = new ArrayList<>();
+       // List<Post> postsInDataBase = new ArrayList<>();
 //        ID INT NOT NULL AUTO_INCREMENT,   PRIMARY KEY (ID),
 //                CONTENT VARCHAR (100)     NOT NULL,
 //        STATUS VARCHAR (100)     NOT NULL
@@ -83,6 +83,7 @@ public class DataBaseWriterRepositoryImpl implements WriterRepository {
         sql="SELECT ID,CONTENT, STATUS FROM post LEFT JOIN  writer_post ON post.ID = writer_post.ID_post WHERE writer_post.ID_WRITER = "+w.getId()+";";
         Statement statement1 = connection.createStatement();
         ResultSet resultSet1 = statement1.executeQuery(sql);
+        List<Post> postsInDataBase = new ArrayList<>();
         while (resultSet1.next()) {
             Post p=new Post();
 
@@ -99,18 +100,19 @@ public class DataBaseWriterRepositoryImpl implements WriterRepository {
         resultSet1.close();
         statement1.close();
 
-//        for (Post pDB: postsInDataBase ){
-//            int flag = 0; // пост есть в BD но в новом списке его нет
-//            for(Post p: w.getPosts()){
-//                if (p.equals(pDB)) flag=1;
-//            }
-//            if(flag==0){
-//                String sql1 = "delete  FROM writer_post WHERE id_post = "+pDB.getId()+");";
-//                PreparedStatement stmt1 = connection.prepareStatement(sql1);
-//                stmt1.executeUpdate();
-//                stmt1.close();
-//
-//            }}
+        for (Post pDB: postsInDataBase ){
+            int flag = 0; // пост есть в BD но в новом списке его нет
+            for(Post p: w.getPosts()){
+
+                if (p.equals(pDB)) flag=1;
+            }
+            if(flag==0){
+                String sql1 = "delete  FROM writer_post WHERE id_post = "+pDB.getId()+");";
+                PreparedStatement stmt1 = connection.prepareStatement(sql1);
+                stmt1.executeUpdate();
+                stmt1.close();
+
+            }}
 
         return w;
 
@@ -135,15 +137,16 @@ public class DataBaseWriterRepositoryImpl implements WriterRepository {
         String sql = "SELECT * FROM  writer; ";
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery(sql);
+       /// List<Post> posts = new ArrayList<>();             //  Post(id, content, List<Tag> tags, PostStatus status)
 
         while (resultSet.next()) {
             long id = resultSet.getLong(1);
             String name = resultSet.getString(2);
-            List<Post> posts = new ArrayList<>();             //  Post(id, content, List<Tag> tags, PostStatus status)
 
-            sql="SELECT ID,CONTENT, STATUS FROM post LEFT JOIN  writer_post ON post.ID = writer_post.ID_post WHERE writer_post.ID_POST = "+id+";";
+            sql="SELECT ID,CONTENT, STATUS FROM post LEFT JOIN  writer_post ON post.ID = writer_post.ID_post WHERE writer_post.ID_WRITER = "+id+";";
             Statement statement1 = connection.createStatement();
             ResultSet resultSet1 = statement1.executeQuery(sql);
+            List<Post> posts = new ArrayList<>();
             while (resultSet1.next()) {
                 Post p=new Post();
 
@@ -216,6 +219,7 @@ public class DataBaseWriterRepositoryImpl implements WriterRepository {
         PreparedStatement stmt = connection.prepareStatement(sql);
         stmt.executeUpdate();
         stmt.close();
+
         sql="select max(id) max_id from writer;";
         PreparedStatement stmt1 = connection.prepareStatement(sql);
         ResultSet resultSet1 = stmt1.executeQuery(sql);
@@ -223,7 +227,7 @@ public class DataBaseWriterRepositoryImpl implements WriterRepository {
         resultSet1.first();
         long i  =resultSet1.getLong("max_id");
 
-        System.out.println(w.getPosts());
+     //   System.out.println(w.getPosts());
 
         for(Post p: w.getPosts()){
 
@@ -240,9 +244,9 @@ public class DataBaseWriterRepositoryImpl implements WriterRepository {
 //
 //            resultSet1.first();
 //            long j  =resultSet1.getLong("max_id");
-System.out.println(i+" "+p.getId());
+//System.out.println(i+" "+p.getId());
             sql="INSERT INTO writer_post (ID_WRITER, ID_POST) VALUES( "+i+","+p.getId()+");";
-            System.out.println(sql);
+         System.out.println(sql);
 
             stmt = connection.prepareStatement(sql);
             stmt.executeUpdate();

@@ -22,6 +22,7 @@ public class PostController {
     public
     Post update(Long id, String content, List<Tag> tags, PostStatus postStatus) throws SQLException, ClassNotFoundException {
         Post post = new Post();
+        post.setId(id);
         post.setContent(content);
         post.setTags(tags);
         post.setStatus(postStatus);
@@ -39,4 +40,6 @@ public class PostController {
     public List<Post> getAll() throws SQLException, ClassNotFoundException {
         return postRepository.getAll();
     }
+
+
 }
