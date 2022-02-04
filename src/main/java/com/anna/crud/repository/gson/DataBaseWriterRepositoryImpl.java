@@ -70,6 +70,8 @@ public class DataBaseWriterRepositoryImpl implements WriterRepository {
         for(Post p: posts) {
             String sql1 = "INSERT INTO writer_post (ID_writer, ID_POST)  VALUES(" + w.getId() + "," + p.getId() + ") " +
                     "ON DUPLICATE KEY UPDATE ID_WRITER=ID_WRITER, ID_POST=ID_POST ;";
+
+         //   System.out.println(sql1);
             PreparedStatement stmt1 = connection.prepareStatement(sql1);
             stmt1.executeUpdate();
             stmt1.close();
@@ -83,8 +85,9 @@ public class DataBaseWriterRepositoryImpl implements WriterRepository {
         sql="SELECT ID,CONTENT, STATUS FROM post LEFT JOIN  writer_post ON post.ID = writer_post.ID_post WHERE writer_post.ID_WRITER = "+w.getId()+";";
         Statement statement1 = connection.createStatement();
         ResultSet resultSet1 = statement1.executeQuery(sql);
-        List<Post> postsInDataBase = new ArrayList<>();
+       List<Post> postsInDataBase = new ArrayList<>();
         while (resultSet1.next()) {
+      //      List<Post> postsInDataBase = new ArrayList<>();
             Post p=new Post();
 
             long id = resultSet1.getLong(1);
@@ -107,12 +110,33 @@ public class DataBaseWriterRepositoryImpl implements WriterRepository {
                 if (p.equals(pDB)) flag=1;
             }
             if(flag==0){
-                String sql1 = "delete  FROM writer_post WHERE id_post = "+pDB.getId()+");";
+                String sql1 = "delete  FROM writer_post WHERE id_post = "+pDB.getId()+";";
                 PreparedStatement stmt1 = connection.prepareStatement(sql1);
                 stmt1.executeUpdate();
                 stmt1.close();
 
             }}
+
+        for (Post pW : w.getPosts()) { // таг в обновленном посте
+            int flag = 0; //
+            for (Post pDB : postsInDataBase) {
+                if (pW.equals(pDB)) flag = 1;
+            }
+            if (flag == 0) {
+                //     String sql1 = "INSERT INTO tag_post (ID_TAG, ID_POST)  VALUES(" + t.getId() + "," + post.getId() + ") " +
+                String sql1 = "INSERT INTO writer_post (ID_WRITER, ID_POST)  VALUES(" + w.getId() + "," + pW.getId() + "); ";// +
+                PreparedStatement stmt1 = connection.prepareStatement(sql1);
+                stmt1.executeUpdate();
+
+//                for(Tag t: pW.getTags()){
+//                sql1 = "INSERT INTO tag_post (ID_tag, ID_POST)  VALUES(" + t.getId() + "," + pW.getId() + "); ";// +
+//                stmt1 = connection.prepareStatement(sql1);
+//                stmt1.executeUpdate();}
+
+                stmt1.close();
+
+            }
+        }
 
         return w;
 
@@ -158,6 +182,24 @@ public class DataBaseWriterRepositoryImpl implements WriterRepository {
                 PostStatus ps = PostStatus.ACTIVE;
                 if(status.equals("DELETED")) ps = PostStatus.DELETED;
                 p.setStatus(ps);
+
+                String sql1="SELECT ID,NAME FROM tag, tag_post WHERE tag.ID = tag_post.ID_TAG AND tag_post.ID_POST = " + idP+"; ";
+//               sql="SELECT ID,NAME FROM tag LEFT JOIN  tag_post ON tag.ID = tag_post.ID_TAG WHERE tag_post.ID_POST = "+ idP+";";
+                Statement statement2 = connection.createStatement();
+                ResultSet resultSet2 = statement2.executeQuery(sql1);
+                List<Tag> tags = new ArrayList<>();
+
+                while (resultSet2.next()) {
+                    long idT= resultSet2.getLong(1);
+                    String nameT = resultSet2.getString(2);
+                    tags.add(new Tag(idT,nameT));
+                       }
+//                statement2.close();
+//                resultSet2.close();
+
+                p.setTags(tags);
+
+
                 posts.add(p);
             }
             resultSet1.close();
