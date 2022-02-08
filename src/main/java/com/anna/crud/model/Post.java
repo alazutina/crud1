@@ -6,8 +6,6 @@ import java.util.List;
 public class Post {
 
 
- //   Post(id, content, List<Tag> tags, PostStatus status)
-
     private Long id;
     private String content;
     List<Tag> tags = new ArrayList<>();

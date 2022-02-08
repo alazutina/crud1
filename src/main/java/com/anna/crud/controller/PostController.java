@@ -2,16 +2,24 @@ package com.anna.crud.controller;
 import com.anna.crud.model.PostStatus;
 import com.anna.crud.model.Tag;
 import com.anna.crud.repository.PostRepository;
-import com.anna.crud.repository.gson.DataBasePostRepositoryImpl;
+import com.anna.crud.repository.jdbc.JdbcPostRepositoryImpl;
 import com.anna.crud.model.Post;
 import java.sql.SQLException;
 import java.util.List;
 
 public class PostController {
 
-    private final PostRepository postRepository = new DataBasePostRepositoryImpl();
+    private final PostRepository postRepository ;
 
-    public Post save(String content, List<Tag> tags, PostStatus postStatus) throws SQLException, ClassNotFoundException{
+    public PostController() {
+        this.postRepository = new JdbcPostRepositoryImpl();
+    }
+
+    public PostController(PostRepository postController) {
+        this.postRepository=  postController;
+          }
+
+    public Post save(String content, List<Tag> tags, PostStatus postStatus) {
         Post post = new Post();
         post.setContent(content);
         post.setTags(tags);
@@ -20,7 +28,7 @@ public class PostController {
     }
 
     public
-    Post update(Long id, String content, List<Tag> tags, PostStatus postStatus) throws SQLException, ClassNotFoundException {
+    Post update(Long id, String content, List<Tag> tags, PostStatus postStatus) {
         Post post = new Post();
         post.setId(id);
         post.setContent(content);
@@ -29,15 +37,15 @@ public class PostController {
         return postRepository.update(post);
     }
 
-    public Post getById(Long id) throws SQLException, ClassNotFoundException {
+    public Post getById(Long id)  {
         return postRepository.getById(id);
     }
 
-    public void deleteById(Long id) throws SQLException, ClassNotFoundException {
+    public void deleteById(Long id) {
         postRepository.deleteById(id);
     }
 
-    public List<Post> getAll() throws SQLException, ClassNotFoundException {
+    public List<Post> getAll() {
         return postRepository.getAll();
     }
 
