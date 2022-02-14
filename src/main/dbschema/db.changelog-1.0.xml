@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+    
+
+    
+    <changeSet id="Creating1" author="anna">
+        <createTable tableName="tags">
+            <column name="ID" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="true"/>
+            </column>
+             <column name="NAME" type="varchar(100)">
+                <constraints primaryKey="false" nullable="true"/>
+            </column>
+               </createTable>
+    </changeSet>
+    
+    <changeSet id="Creating2" author="anna">
+        <createTable tableName="posts">
+            <column name="ID" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="true"/>
+            </column>
+             <column name="CONTENT" type="varchar(100)">
+                <constraints primaryKey="false" nullable="true"/>
+            </column>
+                         <column name="STATUS" type="varchar(100)">
+                <constraints primaryKey="false" nullable="true"/>
+            </column>        
+               </createTable>
+    </changeSet>
+    
+        
+    <changeSet id="Creating3" author="anna">
+        <createTable tableName="writers">
+            <column name="ID" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="true"/>
+            </column>
+             <column name="NAME" type="varchar(100)">
+                <constraints primaryKey="false" nullable="true"/>
+            </column>
+               </createTable>
+    </changeSet>
+    
+    <changeSet id="Creating4" author="anna">
+        <createTable tableName="writer_post">
+            <column name="ID_WRITER" type="int" autoIncrement="false">
+                <constraints primaryKey="false" nullable="true" foreignKeyName="fk_writer_post_writers" references="writers(id)"/>
+            </column>
+            <column name="ID_POST" type="int" autoIncrement="false">
+                <constraints primaryKey="false" nullable="true"
+                             foreignKeyName="fk_writer_post_posts" references="posts(id)"/>
+            </column>
+               </createTable>
+    </changeSet>
+    
+    
+      <changeSet id="Creating5" author="anna">
+        <createTable tableName="tag_post">
+            <column name="ID_TAG" type="int" autoIncrement="false">
+                <constraints primaryKey="false" nullable="true" foreignKeyName="fk_tag_post_tags" references="tags(id)"/>
+            </column>
+            <column name="ID_POST" type="int" autoIncrement="false">
+                <constraints primaryKey="false" nullable="true"
+                             foreignKeyName="fk_tag_post_posts" references="posts(id)"/>
+            </column>
+               </createTable>
+    </changeSet>
+  
+    
+</databaseChangeLog>

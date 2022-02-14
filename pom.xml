@@ -13,16 +13,44 @@
             <maven.compiler.source>11</maven.compiler.source>
             <maven.compiler.target>11</maven.compiler.target>
             <mysql.connector.version>8.0.25</mysql.connector.version>
+            <liquibase.version>3.6.2</liquibase.version>
         </properties>
 
         <dependencies>
-
+            <dependency>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-core</artifactId>
+                <version>3.6.2</version>
+            </dependency>
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
-                <version>${mysql.connector.version}</version>
+                <version>5.1.37</version>
             </dependency>
+        </dependencies>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
 
+                    <groupId>org.liquibase</groupId>
+                    <artifactId>liquibase-maven-plugin</artifactId>
+                    <version>4.2.0</version>
+                    <configuration>
 
+                        <propertyFile>src/main/dbschema/liquibase.properties</propertyFile>
+                    </configuration>
+                    <dependencies>
+
+                        <dependency>
+                            <groupId>org.liquibase</groupId>
+                            <artifactId>liquibase-maven-plugin</artifactId>
+                            <version>2.0.1</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>
