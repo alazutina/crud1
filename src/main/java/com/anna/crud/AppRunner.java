@@ -1,7 +1,7 @@
 package com.anna.crud;
-import com.anna.crud.controller.TagController;
-import com.anna.crud.controller.WriterController;
-import com.anna.crud.controller.PostController;
+//import com.anna.crud.controller.TagController;
+//import com.anna.crud.controller.WriterController;
+//import com.anna.crud.controller.PostController;
 import com.anna.crud.model.Post;
 import com.anna.crud.model.Tag;
 import com.anna.crud.model.PostStatus;
@@ -26,8 +26,7 @@ public class AppRunner {
 
 
                 JdbcUtils.setConnection();
-                                MainView mn = new
-                        MainView();
+                                MainView mn = new                        MainView();
                 mn.start();
 //               final TagController tagController = new TagController();
 //               tagController.save("Moscow"); //save

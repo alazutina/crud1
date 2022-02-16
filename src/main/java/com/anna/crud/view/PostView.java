@@ -1,6 +1,6 @@
 package com.anna.crud.view;
 import com.anna.crud.controller.PostController;
-import com.anna.crud.controller.TagController;
+import com.anna.crud.controller.PostController;
 import com.anna.crud.model.PostStatus;
 import com.anna.crud.model.Tag;
 import com.anna.crud.model.Post;

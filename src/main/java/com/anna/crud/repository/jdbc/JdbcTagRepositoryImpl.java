@@ -30,12 +30,21 @@ public class JdbcTagRepositoryImpl implements TagRepository {
 
     public Tag save(Tag tag) {
         String sql="INSERT INTO tags (ID, NAME) VALUES (0, '"+tag.getName()+"');";
-        try (PreparedStatement stmt = JdbcUtils.getPreparedStatement(sql);) {
+        try ( PreparedStatement stmt = JdbcUtils.getPreparedStatement(sql);) {
                   stmt.executeUpdate();
-        } catch (Throwable e) {
+        }catch (Throwable e) {
             e.printStackTrace();
         }
-        return tag;
+        String sql1="select max(id) max_id from tags;";
+            try ( PreparedStatement stmt1 = JdbcUtils.getPreparedStatement(sql1);) {
+                ResultSet resultSet1 = stmt1.executeQuery();
+                resultSet1.first();
+                long i  =resultSet1.getLong("max_id");
+                tag.setId(i);
+        } catch (Throwable e) {
+                e.printStackTrace();
+            }
+               return tag;
     }
 
     public Tag update(Tag t) {

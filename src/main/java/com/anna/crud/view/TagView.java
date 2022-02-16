@@ -13,7 +13,7 @@ public class TagView {
    private final  String ERROR_MESS="неверный ввод";
 
 
-    public void startTags() throws ClassNotFoundException, SQLException{
+    public void startTags() {//throws ClassNotFoundException, SQLException{
 
 
         System.out.println("Список всех тагов: ");
@@ -80,12 +80,12 @@ public class TagView {
 
     }
 
-    private void printAllTags() throws ClassNotFoundException, SQLException {
+    private void printAllTags(){//} throws ClassNotFoundException, SQLException {
           List<Tag> tags = tagController.getAll();//.getAll();
                 System.out.println(tags);
     }
 
-    private void addNewTag() throws ClassNotFoundException, SQLException{
+    private void addNewTag(){//} throws ClassNotFoundException, SQLException{
 
         String name;
         System.out.print("Введите name of Tag: ");
@@ -101,7 +101,7 @@ public class TagView {
               tagController.save(name);
             }
 
-    private void deleteTag() throws ClassNotFoundException, SQLException{
+    private void deleteTag() {//throws ClassNotFoundException, SQLException{
         System.out.print("Введите id of Tag, который удалить: ");
         Long i ;
 
@@ -116,7 +116,7 @@ public class TagView {
                tagController.deleteById(i);
             }
 
-            private void updateTag()throws ClassNotFoundException, SQLException{
+            private void updateTag(){//throws ClassNotFoundException, SQLException{
 
                     System.out.print("Введите id изменяемого Tag: ");
                 Long i ;
@@ -147,7 +147,7 @@ public class TagView {
                tagController.update(i,s);
             }
 
-            private void tagById() throws ClassNotFoundException, SQLException{
+            private void tagById(){//} throws ClassNotFoundException, SQLException{
                 Long i;
                 boolean flag = true;
 
@@ -167,7 +167,7 @@ public class TagView {
                 System.out.println(tagController.getById(i));
             }
 
-                public List<Tag> returnPostTags() throws ClassNotFoundException, SQLException{
+                public List<Tag> returnPostTags() {//throws ClassNotFoundException, SQLException{
 
                     Long i;
                     boolean flag = true;
