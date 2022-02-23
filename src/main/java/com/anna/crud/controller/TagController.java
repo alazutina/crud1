@@ -21,8 +21,12 @@ public class TagController {
     public Tag save(String name){
         Tag tag = new Tag();
         tag.setName(name);
-        return tagRepository.save(tag);
+        Tag r = tagRepository.save(tag);
+        return r;
     }
+
+
+
 
     public Tag update(Long id, String name) {
         Tag tag = new Tag();
@@ -43,6 +47,7 @@ public class TagController {
 
         return tagRepository.getAll();
     }
+
 }
 
 

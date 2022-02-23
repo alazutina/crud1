@@ -47,6 +47,7 @@ public class JdbcWriterRepositoryImpl implements WriterRepository {
                        ResultSet resultSet1 = stmt.executeQuery();
                         resultSet1.first();
             long i  =resultSet1.getLong("max_id");
+                    w.setId(i);
                  for(Post p: w.getPosts()){
                 String sql1="INSERT INTO writer_post (ID_WRITER, ID_POST) VALUES( "+i+","+p.getId()+");";
                 try (                       PreparedStatement stmt1 = JdbcUtils.getPreparedStatement(sql1);) {
@@ -64,10 +65,16 @@ public class JdbcWriterRepositoryImpl implements WriterRepository {
 
     @Override
     public Writer update(Writer w)  {
-        String sql =  "Update writer Set Name='"+w.getName()+"' Where ID = "+w.getId()+";";
+        String sql =  "Update writers Set Name='"+w.getName()+"' Where ID = "+w.getId()+";";
         try (                PreparedStatement stmt = JdbcUtils.getPreparedStatement(sql);) {
             stmt.executeUpdate();
         } catch (Throwable e) {
+        }
+
+        sql =  "delete from writer_post where id_writer = "+w.getId()+";";
+        try (                PreparedStatement stmt = JdbcUtils.getPreparedStatement(sql);) {
+            stmt.executeUpdate();
+          } catch (Throwable e) {
         }
 
         List<Post> posts = w.getPosts();
@@ -80,51 +87,51 @@ public class JdbcWriterRepositoryImpl implements WriterRepository {
             }
         }
 
-        String sql2="SELECT ID,CONTENT, STATUS FROM post LEFT JOIN  writer_post ON post.ID = writer_post.ID_post WHERE writer_post.ID_WRITER = "+w.getId()+";";
-        try (                PreparedStatement stmt1 = JdbcUtils.getPreparedStatement(sql2);) {
-            ResultSet resultSet1 = stmt1.executeQuery();
-            List<Post> postsInDataBase = new ArrayList<>();
-            while (resultSet1.next()) {                //      List<Post> postsInDataBase = new ArrayList<>();
-                Post p = new Post();
-                long id = resultSet1.getLong(1);
-                p.setId(id);
-                String content = resultSet1.getString(2);
-                p.setContent(content);
-                String status = resultSet1.getString(3);
-                PostStatus ps = PostStatus.ACTIVE;
-                if (status.equals("DELETED")) ps = PostStatus.DELETED;
-                p.setStatus(ps);
-                postsInDataBase.add(p);
-            }
-            for (Post pDB : postsInDataBase) {
-                int flag = 0; // пост есть в BD но в новом списке его нет
-                for (Post p : w.getPosts()) {
-                    if (p.equals(pDB)) flag = 1;
-                }
-                if (flag == 0) {
-                    String sql3 = "delete  FROM writer_post WHERE id_post = " + pDB.getId() + ";";
-                    try (                            PreparedStatement stmt3 = JdbcUtils.getPreparedStatement(sql3);) {
-                        stmt1.executeUpdate();
-                    } catch (Throwable e) {
-                    }
-                }
-            }
-            for (Post pW : w.getPosts()) { // таг в обновленном посте
-                int flag = 0; //
-                for (Post pDB : postsInDataBase) {
-                    if (pW.equals(pDB)) flag = 1;
-                }
-                if (flag == 0) {
-                           String sql3 = "INSERT INTO writer_post (ID_WRITER, ID_POST)  VALUES(" + w.getId() + "," + pW.getId() + "); ";// +
-                    try (
-                            PreparedStatement stmt3 = JdbcUtils.getPreparedStatement(sql3);) {
-                        stmt1.executeUpdate();
-                    } catch (Throwable e) {
-                    }
-                }
-            }
-        }catch(Throwable e){
-        }
+//        String sql2="SELECT ID,CONTENT, STATUS FROM post LEFT JOIN  writer_post ON post.ID = writer_post.ID_post WHERE writer_post.ID_WRITER = "+w.getId()+";";
+//        try (                PreparedStatement stmt1 = JdbcUtils.getPreparedStatement(sql2);) {
+//            ResultSet resultSet1 = stmt1.executeQuery();
+//            List<Post> postsInDataBase = new ArrayList<>();
+//            while (resultSet1.next()) {                //      List<Post> postsInDataBase = new ArrayList<>();
+//                Post p = new Post();
+//                long id = resultSet1.getLong(1);
+//                p.setId(id);
+//                String content = resultSet1.getString(2);
+//                p.setContent(content);
+//                String status = resultSet1.getString(3);
+//                PostStatus ps = PostStatus.ACTIVE;
+//                if (status.equals("DELETED")) ps = PostStatus.DELETED;
+//                p.setStatus(ps);
+//                postsInDataBase.add(p);
+//            }
+//            for (Post pDB : postsInDataBase) {
+//                int flag = 0; // пост есть в BD но в новом списке его нет
+//                for (Post p : w.getPosts()) {
+//                    if (p.equals(pDB)) flag = 1;
+//                }
+//                if (flag == 0) {
+//                    String sql3 = "delete  FROM writer_post WHERE id_post = " + pDB.getId() + ";";
+//                    try (                            PreparedStatement stmt3 = JdbcUtils.getPreparedStatement(sql3);) {
+//                        stmt1.executeUpdate();
+//                    } catch (Throwable e) {
+//                    }
+//                }
+//            }
+//            for (Post pW : w.getPosts()) { // таг в обновленном посте
+//                int flag = 0; //
+//                for (Post pDB : postsInDataBase) {
+//                    if (pW.equals(pDB)) flag = 1;
+//                }
+//                if (flag == 0) {
+//                           String sql3 = "INSERT INTO writer_post (ID_WRITER, ID_POST)  VALUES(" + w.getId() + "," + pW.getId() + "); ";// +
+//                    try (
+//                            PreparedStatement stmt3 = JdbcUtils.getPreparedStatement(sql3);) {
+//                        stmt1.executeUpdate();
+//                    } catch (Throwable e) {
+//                    }
+//                }
+//            }
+//        }catch(Throwable e){
+//        }
         return w;
     }
 
@@ -214,9 +221,9 @@ resultSet1.close();
                     PostStatus ps = PostStatus.ACTIVE;
                     if (status.equals("DELETED")) ps = PostStatus.DELETED;
                     p.setStatus(ps);
-                    String sql2 = "SELECT ID,NAME FROM tag, tag_post WHERE tag.ID = tag_post.ID_TAG AND tag_post.ID_POST = " + idP + "; ";
+                    String sql2 = "SELECT ID,NAME FROM tags, tag_post WHERE tags.ID = tag_post.ID_TAG AND tag_post.ID_POST = " + idP + "; ";
                     try (PreparedStatement preparedStatement2 = JdbcUtils.getPreparedStatement(sql2)) {
-                        ResultSet resultSet2 = preparedStatement.executeQuery();
+                        ResultSet resultSet2 = preparedStatement2.executeQuery();
                         List<Tag> tags = new ArrayList<>();
                         while (resultSet2.next()) {
                             long idT = resultSet2.getLong(1);
